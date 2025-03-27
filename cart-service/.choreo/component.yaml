@@ -10,6 +10,7 @@ endpoints:
       port: 3002
     type: REST
     networkVisibilities:
+      - Organization
       - Project
     schemaFilePath: openapi.yaml
 

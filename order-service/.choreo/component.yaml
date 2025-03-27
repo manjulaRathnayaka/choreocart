@@ -10,7 +10,8 @@ endpoints:
     type: REST
     networkVisibilities:
       - Project
-    schemaFilePath: ../openapi.yaml
+      - Organization
+    schemaFilePath: openapi.yaml
 
 # Runtime configurations
 configurations:

@@ -17,7 +17,7 @@ endpoints:
     type: REST
     # Network level visibilities of the endpoint
     networkVisibilities:
-      - Project
+      - Public
     # Path to the OpenAPI schema definition file
     schemaFilePath: openapi.yaml
 
