@@ -21,6 +21,14 @@ endpoints:
     # Path to the OpenAPI schema definition file
     schemaFilePath: openapi.yaml
 
+dependencies:
+    connectionReferences:
+    - name: product
+      resourceRef: service:/cart-app-on-vultr-cloud/product-service/v1/194ae/PROJECT
+    - name: order
+      resourceRef: service:/cart-app-on-vultr-cloud/order-service/v1/1911a/PROJECT
+    - name: cart
+      resourceRef: service:/cart-app-on-vultr-cloud/cart-service/v1/fb1df/PUBLIC
 # Runtime configurations can be added as needed
 configurations:
   # Environment variables if needed

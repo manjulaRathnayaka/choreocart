@@ -4,9 +4,13 @@ const app = express();
 app.use(express.json());
 
 // Service URLs - in a production environment, these would come from environment variables
-const PRODUCT_SERVICE = process.env.PRODUCT_SERVICE_URL || 'http://localhost:3001';
-const CART_SERVICE = process.env.CART_SERVICE_URL || 'http://localhost:3002';
-const ORDER_SERVICE = process.env.ORDER_SERVICE_URL || 'http://localhost:3003';
+
+const PRODUCT_SERVICE = process.env.CHOREO_PRODUCT_SERVICEURL || 'http://localhost:3001';
+const CART_SERVICE = process.env.CHOREO_CART_SERVICEURL || 'http://localhost:3002';
+const ORDER_SERVICE = process.env.CHOREO_ORDER_SERVICEURL || 'http://localhost:3003';
+const CHOREO_PRODUCT_API_KEY = process.env.CHOREO_PRODUCT_CHOREOAPIKEY;
+const CHOREO_ORDER_API_KEY = process.env.CHOREO_ORDER_CHOREOAPIKEY;
+const CHOREO_CART_API_KEY = process.env.CHOREO_CART_APIKEY;
 
 // Error handling middleware
 const asyncHandler = fn => (req, res, next) => {
