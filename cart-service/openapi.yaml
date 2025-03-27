@@ -19,6 +19,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CartItem'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       summary: Add item to cart
       description: Adds a new product to the shopping cart
@@ -31,12 +37,30 @@ paths:
       responses:
         '201':
           description: Item added successfully
+        '400':
+          description: Invalid request body or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       summary: Clear cart
       description: Removes all items from the shopping cart
       responses:
         '200':
           description: Cart cleared successfully
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     CartItem:
@@ -44,12 +68,23 @@ components:
       properties:
         id:
           type: integer
+          description: Product ID
         name:
           type: string
+          description: Product name
         price:
           type: number
           format: float
+          description: Product price
       required:
         - id
         - name
         - price
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required:
+        - error

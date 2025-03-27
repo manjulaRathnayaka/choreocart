@@ -19,6 +19,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Product'
+        '405':
+          description: Method not allowed
   /products/{productId}:
     get:
       summary: Get product by ID
@@ -29,6 +31,7 @@ paths:
           required: true
           schema:
             type: integer
+          description: Numeric ID of the product to retrieve
       responses:
         '200':
           description: Successful operation
@@ -36,8 +39,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid product ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
   /products/search:
     get:
       summary: Search products
@@ -47,12 +62,12 @@ paths:
           in: query
           schema:
             type: string
-          description: Search term
+          description: Search term for product name
         - name: category
           in: query
           schema:
             type: string
-          description: Category filter
+          description: Filter products by category
       responses:
         '200':
           description: Successful operation
@@ -62,6 +77,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Product'
+        '405':
+          description: Method not allowed
 components:
   schemas:
     Product:
@@ -93,3 +110,9 @@ components:
         - id
         - name
         - price
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
