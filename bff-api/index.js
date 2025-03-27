@@ -4,13 +4,29 @@ const app = express();
 app.use(express.json());
 
 // Service URLs - in a production environment, these would come from environment variables
-
-const PRODUCT_SERVICE = process.env.CHOREO_PRODUCT_SERVICEURL || 'http://localhost:3001';
-const CART_SERVICE = process.env.CHOREO_CART_SERVICEURL || 'http://localhost:3002';
-const ORDER_SERVICE = process.env.CHOREO_ORDER_SERVICEURL || 'http://localhost:3003';
+// Remove any trailing slashes when assigning
+const PRODUCT_SERVICE = (process.env.CHOREO_PRODUCT_SERVICEURL || 'http://localhost:3001').replace(/\/$/, '');
+const CART_SERVICE = (process.env.CHOREO_CART_SERVICEURL || 'http://localhost:3002').replace(/\/$/, '');
+const ORDER_SERVICE = (process.env.CHOREO_ORDER_SERVICEURL || 'http://localhost:3003').replace(/\/$/, '');
 const CHOREO_PRODUCT_API_KEY = process.env.CHOREO_PRODUCT_CHOREOAPIKEY;
 const CHOREO_ORDER_API_KEY = process.env.CHOREO_ORDER_CHOREOAPIKEY;
 const CHOREO_CART_API_KEY = process.env.CHOREO_CART_APIKEY;
+
+// Function to create headers with API keys based on the service being called
+const createHeaders = (service, additionalHeaders = {}) => {
+  const headers = { ...additionalHeaders };
+
+  // Add the appropriate Choreo API Key based on which service we're calling
+  if (service === 'product' && CHOREO_PRODUCT_API_KEY) {
+    headers['Choreo-API-Key'] = CHOREO_PRODUCT_API_KEY;
+  } else if (service === 'cart' && CHOREO_CART_API_KEY) {
+    headers['Choreo-API-Key'] = CHOREO_CART_API_KEY;
+  } else if (service === 'order' && CHOREO_ORDER_API_KEY) {
+    headers['Choreo-API-Key'] = CHOREO_ORDER_API_KEY;
+  }
+
+  return headers;
+};
 
 // Error handling middleware
 const asyncHandler = fn => (req, res, next) => {
@@ -21,7 +37,10 @@ const asyncHandler = fn => (req, res, next) => {
 
 // Products API
 app.get('/api/products', asyncHandler(async (req, res) => {
-  const response = await fetch(`${PRODUCT_SERVICE}/products`);
+  const response = await fetch(`${PRODUCT_SERVICE}/products`, {
+    headers: createHeaders('product')
+  });
+
   if (!response.ok) {
     return res.status(response.status).json({ error: 'Failed to fetch products' });
   }
@@ -30,7 +49,10 @@ app.get('/api/products', asyncHandler(async (req, res) => {
 }));
 
 app.get('/api/products/:id', asyncHandler(async (req, res) => {
-  const response = await fetch(`${PRODUCT_SERVICE}/products/${req.params.id}`);
+  const response = await fetch(`${PRODUCT_SERVICE}/products/${req.params.id}`, {
+    headers: createHeaders('product')
+  });
+
   if (!response.ok) {
     return res.status(response.status).json({ error: 'Product not found' });
   }
@@ -48,7 +70,10 @@ app.get('/api/products/search', asyncHandler(async (req, res) => {
   if (category) params.push(`category=${encodeURIComponent(category)}`);
   if (params.length) url += '?' + params.join('&');
 
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: createHeaders('product')
+  });
+
   if (!response.ok) {
     return res.status(response.status).json({ error: 'Search failed' });
   }
@@ -58,7 +83,10 @@ app.get('/api/products/search', asyncHandler(async (req, res) => {
 
 // Cart API
 app.get('/api/cart', asyncHandler(async (req, res) => {
-  const response = await fetch(`${CART_SERVICE}/cart`);
+  const response = await fetch(`${CART_SERVICE}/cart`, {
+    headers: createHeaders('cart')
+  });
+
   if (!response.ok) {
     return res.status(response.status).json({ error: 'Failed to fetch cart' });
   }
@@ -69,7 +97,7 @@ app.get('/api/cart', asyncHandler(async (req, res) => {
 app.post('/api/cart', asyncHandler(async (req, res) => {
   const response = await fetch(`${CART_SERVICE}/cart`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: createHeaders('cart', { 'Content-Type': 'application/json' }),
     body: JSON.stringify(req.body),
   });
 
@@ -83,7 +111,8 @@ app.post('/api/cart', asyncHandler(async (req, res) => {
 
 app.delete('/api/cart', asyncHandler(async (req, res) => {
   const response = await fetch(`${CART_SERVICE}/cart`, {
-    method: 'DELETE'
+    method: 'DELETE',
+    headers: createHeaders('cart')
   });
 
   if (!response.ok) {
@@ -96,7 +125,10 @@ app.delete('/api/cart', asyncHandler(async (req, res) => {
 // Checkout/Order API
 app.post('/api/checkout', asyncHandler(async (req, res) => {
   // First get the cart contents
-  const cartResponse = await fetch(`${CART_SERVICE}/cart`);
+  const cartResponse = await fetch(`${CART_SERVICE}/cart`, {
+    headers: createHeaders('cart')
+  });
+
   if (!cartResponse.ok) {
     return res.status(cartResponse.status).json({ error: 'Failed to fetch cart' });
   }
@@ -109,7 +141,7 @@ app.post('/api/checkout', asyncHandler(async (req, res) => {
   // Create the order with the cart items
   const orderResponse = await fetch(`${ORDER_SERVICE}/order`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: createHeaders('order', { 'Content-Type': 'application/json' }),
     body: JSON.stringify(cartItems),
   });
 
@@ -120,13 +152,19 @@ app.post('/api/checkout', asyncHandler(async (req, res) => {
   const order = await orderResponse.json();
 
   // Clear the cart after successful order
-  await fetch(`${CART_SERVICE}/cart`, { method: 'DELETE' });
+  await fetch(`${CART_SERVICE}/cart`, {
+    method: 'DELETE',
+    headers: createHeaders('cart')
+  });
 
   res.status(201).json(order);
 }));
 
 app.get('/api/orders', asyncHandler(async (req, res) => {
-  const response = await fetch(`${ORDER_SERVICE}/orders`);
+  const response = await fetch(`${ORDER_SERVICE}/orders`, {
+    headers: createHeaders('order')
+  });
+
   if (!response.ok) {
     return res.status(response.status).json({ error: 'Failed to fetch orders' });
   }
@@ -136,7 +174,9 @@ app.get('/api/orders', asyncHandler(async (req, res) => {
 
 app.get('/api/orders/:orderId', asyncHandler(async (req, res) => {
   const { orderId } = req.params;
-  const response = await fetch(`${ORDER_SERVICE}/orders/${orderId}`);
+  const response = await fetch(`${ORDER_SERVICE}/orders/${orderId}`, {
+    headers: createHeaders('order')
+  });
 
   if (!response.ok) {
     return res.status(response.status).json({ error: 'Order not found' });
@@ -157,7 +197,7 @@ app.patch('/api/orders/:orderId', asyncHandler(async (req, res) => {
 
   const response = await fetch(`${ORDER_SERVICE}/orders/${orderId}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: createHeaders('order', { 'Content-Type': 'application/json' }),
     body: JSON.stringify({ status }),
   });
 
@@ -177,4 +217,9 @@ app.use((err, req, res, next) => {
 
 // Start the server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`BFF API running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`BFF API running on port ${PORT}`);
+  console.log(`Using Product Service: ${PRODUCT_SERVICE}`);
+  console.log(`Using Cart Service: ${CART_SERVICE}`);
+  console.log(`Using Order Service: ${ORDER_SERVICE}`);
+});
