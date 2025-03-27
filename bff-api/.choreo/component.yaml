@@ -12,7 +12,7 @@ endpoints:
       # Context (base path) of the API that gets exposed via the endpoint
       basePath: /api
       # Numeric port value that gets exposed via the endpoint
-      port: 3000
+      port: 8080
     # Type of traffic that the endpoint is accepting
     type: REST
     # Network level visibilities of the endpoint
