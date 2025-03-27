@@ -1,0 +1,55 @@
+openapi: 3.0.0
+info:
+  title: Cart Service API
+  description: API for managing shopping cart in ChoreoCart application
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /cart:
+    get:
+      summary: Get cart contents
+      description: Retrieves the current contents of the shopping cart
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartItem'
+    post:
+      summary: Add item to cart
+      description: Adds a new product to the shopping cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+      responses:
+        '201':
+          description: Item added successfully
+    delete:
+      summary: Clear cart
+      description: Removes all items from the shopping cart
+      responses:
+        '200':
+          description: Cart cleared successfully
+components:
+  schemas:
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+          format: float
+      required:
+        - id
+        - name
+        - price

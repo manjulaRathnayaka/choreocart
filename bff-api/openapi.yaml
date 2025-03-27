@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  title: BFF API
+  description: Backend-for-Frontend API for ChoreoCart application
+  version: 1.0.0
+servers:
+  - url: /api
+paths:
+  /products:
+    get:
+      summary: Get all products
+      description: Retrieves the list of available products from the product service
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /cart:
+    get:
+      summary: Get cart contents
+      description: Retrieves the current contents of the shopping cart
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartItem'
+    post:
+      summary: Add item to cart
+      description: Adds a new product to the shopping cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Item added successfully
+  /checkout:
+    post:
+      summary: Checkout cart
+      description: Creates an order from the current cart contents
+      responses:
+        '200':
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+          format: float
+      required:
+        - id
+        - name
+        - price
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+          format: float
+      required:
+        - id
+        - name
+        - price

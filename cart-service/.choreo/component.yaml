@@ -1,0 +1,19 @@
+# The configuration file schema version
+schemaVersion: 1.2
+
+# Incoming connection details for the component
+endpoints:
+  - name: cart-service
+    displayName: Cart Service
+    service:
+      basePath: /
+      port: 3002
+    type: REST
+    networkVisibilities:
+      - Project
+    schemaFilePath: openapi.yaml
+
+# Runtime configurations
+configurations:
+  env: []
+  file: []

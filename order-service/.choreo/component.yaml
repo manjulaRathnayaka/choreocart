@@ -1,0 +1,18 @@
+# The configuration file schema version
+schemaVersion: 1.2
+# Incoming connection details for the component
+endpoints:
+  - name: order-service
+    displayName: Order Service
+    service:
+      basePath: /
+      port: 3003
+    type: REST
+    networkVisibilities:
+      - Project
+    schemaFilePath: ../openapi.yaml
+
+# Runtime configurations
+configurations:
+  env: []
+  file: []
