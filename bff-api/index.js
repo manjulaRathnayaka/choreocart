@@ -94,11 +94,41 @@ app.get('/api/cart', asyncHandler(async (req, res) => {
   res.json(cart);
 }));
 
+// Update the POST /api/cart endpoint
 app.post('/api/cart', asyncHandler(async (req, res) => {
+  // First get the current cart
+  const cartResponse = await fetch(`${CART_SERVICE}/cart`, {
+    headers: createHeaders('cart')
+  });
+
+  let currentCart = [];
+  if (cartResponse.ok) {
+    currentCart = await cartResponse.json();
+  }
+
+  // Check if the item already exists in the cart
+  const newItem = req.body;
+  const existingItemIndex = currentCart.findIndex(item => item.id === newItem.id);
+
+  if (existingItemIndex >= 0) {
+    // Item already exists, increase quantity if that's supported
+    if (currentCart[existingItemIndex].quantity) {
+      currentCart[existingItemIndex].quantity += 1;
+    } else {
+      // If quantity isn't supported, we could add it
+      currentCart[existingItemIndex].quantity = 2;
+    }
+  } else {
+    // Add new item with quantity 1
+    newItem.quantity = 1;
+    currentCart.push(newItem);
+  }
+
+  // Update the cart with the new array
   const response = await fetch(`${CART_SERVICE}/cart`, {
     method: 'POST',
     headers: createHeaders('cart', { 'Content-Type': 'application/json' }),
-    body: JSON.stringify(req.body),
+    body: JSON.stringify(currentCart),
   });
 
   if (!response.ok) {
