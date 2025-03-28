@@ -42,6 +42,7 @@ export async function getCart() {
   return res.json();
 }
 
+// Find and update the addToCart function
 export async function addToCart(product) {
   try {
     const res = await fetch(`${API_BASE_URL}/cart`, {
@@ -60,17 +61,25 @@ export async function addToCart(product) {
   }
 }
 
+// Find and update or add the updateCartItemQuantity function
 export async function updateCartItemQuantity(productId, quantity) {
+  if (quantity < 1) {
+    throw new Error('Quantity must be at least 1');
+  }
+
   try {
-    // Get current cart
-    const cart = await getCart();
-    const updatedCart = cart.map(item => {
+    // First get the current cart
+    const currentCart = await getCart();
+
+    // Update the quantity for the specified product
+    const updatedCart = currentCart.map(item => {
       if (item.id === productId) {
-        return { ...item, quantity };
+        return { ...item, quantity: quantity };
       }
       return item;
     });
 
+    // Send the updated cart to the server
     const res = await fetch(`${API_BASE_URL}/cart`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

@@ -4,7 +4,7 @@ info:
   description: Backend for Frontend API for the ChoreoCart application
   version: 1.0.0
 servers:
-  - url: /api
+  - url: /
 paths:
   /products:
     get:
@@ -118,6 +118,32 @@ paths:
           description: Item added successfully
         '400':
           description: Invalid request body or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update entire cart
+      description: Updates the entire cart with the provided items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CartItem'
+      responses:
+        '200':
+          description: Cart updated successfully
+        '400':
+          description: Invalid request body
           content:
             application/json:
               schema:
@@ -297,6 +323,16 @@ components:
           type: number
           format: float
           description: Product price
+        quantity:
+          type: integer
+          description: Quantity of the item
+          default: 1
+        category:
+          type: string
+          description: Product category
+        description:
+          type: string
+          description: Product description
       required:
         - id
         - name

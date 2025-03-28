@@ -90,22 +90,16 @@ components:
         name:
           type: string
           description: Name of the product
-        description:
-          type: string
-          description: Detailed description of the product
         price:
           type: number
           format: float
           description: Price of the product
-        imageUrl:
+        description:
           type: string
-          description: URL to the product image
+          description: Detailed description of the product
         category:
           type: string
           description: Product category
-        stock:
-          type: integer
-          description: Available quantity in stock
       required:
         - id
         - name

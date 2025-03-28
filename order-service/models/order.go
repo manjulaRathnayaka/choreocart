@@ -4,11 +4,14 @@ import (
 	"time"
 )
 
-// CartItem represents an item in the cart
+// CartItem represents an item in the shopping cart
 type CartItem struct {
-	ID    int     `json:"id"`
-	Name  string  `json:"name"`
-	Price float64 `json:"price"`
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	Price       float64 `json:"price"`
+	Quantity    int     `json:"quantity,omitempty"`
+	Category    string  `json:"category,omitempty"`
+	Description string  `json:"description,omitempty"`
 }
 
 // Order represents a customer order

@@ -36,7 +36,7 @@ const asyncHandler = fn => (req, res, next) => {
 };
 
 // Products API
-app.get('/api/products', asyncHandler(async (req, res) => {
+app.get('/products', asyncHandler(async (req, res) => {
   const response = await fetch(`${PRODUCT_SERVICE}/products`, {
     headers: createHeaders('product')
   });
@@ -48,7 +48,7 @@ app.get('/api/products', asyncHandler(async (req, res) => {
   res.json(products);
 }));
 
-app.get('/api/products/:id', asyncHandler(async (req, res) => {
+app.get('/products/:id', asyncHandler(async (req, res) => {
   const response = await fetch(`${PRODUCT_SERVICE}/products/${req.params.id}`, {
     headers: createHeaders('product')
   });
@@ -60,7 +60,7 @@ app.get('/api/products/:id', asyncHandler(async (req, res) => {
   res.json(product);
 }));
 
-app.get('/api/products/search', asyncHandler(async (req, res) => {
+app.get('/products/search', asyncHandler(async (req, res) => {
   const { query, category } = req.query;
   let url = `${PRODUCT_SERVICE}/products/search`;
 
@@ -82,7 +82,7 @@ app.get('/api/products/search', asyncHandler(async (req, res) => {
 }));
 
 // Cart API
-app.get('/api/cart', asyncHandler(async (req, res) => {
+app.get('/cart', asyncHandler(async (req, res) => {
   const response = await fetch(`${CART_SERVICE}/cart`, {
     headers: createHeaders('cart')
   });
@@ -94,41 +94,25 @@ app.get('/api/cart', asyncHandler(async (req, res) => {
   res.json(cart);
 }));
 
-// Update the POST /api/cart endpoint
-app.post('/api/cart', asyncHandler(async (req, res) => {
-  // First get the current cart
-  const cartResponse = await fetch(`${CART_SERVICE}/cart`, {
-    headers: createHeaders('cart')
-  });
+// Update the POST /cart endpoint - find this in your code and replace it
+app.post('/cart', asyncHandler(async (req, res) => {
+  const product = req.body;
 
-  let currentCart = [];
-  if (cartResponse.ok) {
-    currentCart = await cartResponse.json();
+  // Validate the product
+  if (!product.id || !product.name || product.price === undefined) {
+    return res.status(400).json({ error: 'Invalid product data' });
   }
 
-  // Check if the item already exists in the cart
-  const newItem = req.body;
-  const existingItemIndex = currentCart.findIndex(item => item.id === newItem.id);
-
-  if (existingItemIndex >= 0) {
-    // Item already exists, increase quantity if that's supported
-    if (currentCart[existingItemIndex].quantity) {
-      currentCart[existingItemIndex].quantity += 1;
-    } else {
-      // If quantity isn't supported, we could add it
-      currentCart[existingItemIndex].quantity = 2;
-    }
-  } else {
-    // Add new item with quantity 1
-    newItem.quantity = 1;
-    currentCart.push(newItem);
+  // Add quantity=1 if not provided
+  if (!product.quantity) {
+    product.quantity = 1;
   }
 
-  // Update the cart with the new array
+  // Forward to cart service
   const response = await fetch(`${CART_SERVICE}/cart`, {
     method: 'POST',
     headers: createHeaders('cart', { 'Content-Type': 'application/json' }),
-    body: JSON.stringify(currentCart),
+    body: JSON.stringify(product),
   });
 
   if (!response.ok) {
@@ -136,10 +120,32 @@ app.post('/api/cart', asyncHandler(async (req, res) => {
     return res.status(response.status).json({ error: error || 'Failed to add item to cart' });
   }
 
-  res.status(response.status).end();
+  res.status(201).end();
 }));
 
-app.delete('/api/cart', asyncHandler(async (req, res) => {
+// Add a PUT /cart endpoint if it doesn't exist
+app.put('/cart', asyncHandler(async (req, res) => {
+  const updatedCart = req.body;
+
+  if (!Array.isArray(updatedCart)) {
+    return res.status(400).json({ error: 'Cart must be an array' });
+  }
+
+  const response = await fetch(`${CART_SERVICE}/cart`, {
+    method: 'PUT',
+    headers: createHeaders('cart', { 'Content-Type': 'application/json' }),
+    body: JSON.stringify(updatedCart),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    return res.status(response.status).json({ error: error || 'Failed to update cart' });
+  }
+
+  res.status(200).end();
+}));
+
+app.delete('/cart', asyncHandler(async (req, res) => {
   const response = await fetch(`${CART_SERVICE}/cart`, {
     method: 'DELETE',
     headers: createHeaders('cart')
@@ -153,7 +159,7 @@ app.delete('/api/cart', asyncHandler(async (req, res) => {
 }));
 
 // Checkout/Order API
-app.post('/api/checkout', asyncHandler(async (req, res) => {
+app.post('/checkout', asyncHandler(async (req, res) => {
   // First get the cart contents
   const cartResponse = await fetch(`${CART_SERVICE}/cart`, {
     headers: createHeaders('cart')
@@ -190,7 +196,7 @@ app.post('/api/checkout', asyncHandler(async (req, res) => {
   res.status(201).json(order);
 }));
 
-app.get('/api/orders', asyncHandler(async (req, res) => {
+app.get('/orders', asyncHandler(async (req, res) => {
   const response = await fetch(`${ORDER_SERVICE}/orders`, {
     headers: createHeaders('order')
   });
@@ -202,7 +208,7 @@ app.get('/api/orders', asyncHandler(async (req, res) => {
   res.json(orders);
 }));
 
-app.get('/api/orders/:orderId', asyncHandler(async (req, res) => {
+app.get('/orders/:orderId', asyncHandler(async (req, res) => {
   const { orderId } = req.params;
   const response = await fetch(`${ORDER_SERVICE}/orders/${orderId}`, {
     headers: createHeaders('order')
@@ -217,7 +223,7 @@ app.get('/api/orders/:orderId', asyncHandler(async (req, res) => {
 }));
 
 // Update order status
-app.patch('/api/orders/:orderId', asyncHandler(async (req, res) => {
+app.patch('/orders/:orderId', asyncHandler(async (req, res) => {
   const { orderId } = req.params;
   const { status } = req.body;
 

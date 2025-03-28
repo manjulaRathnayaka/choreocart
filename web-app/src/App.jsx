@@ -105,7 +105,7 @@ function App() {
           <Route path="/" element={
             <main className="app-main">
               <ProductList products={products} addToCart={handleAddToCart} />
-              <Cart cart={cart} checkout={handleCheckout} setCart={setCart} />
+              <Cart cart={cart} checkout={handleCheckout} fetchCart={fetchCart} />
             </main>
           } />
           <Route path="/orders" element={<OrderHistory />} />

@@ -27,7 +27,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     post:
       summary: Add item to cart
-      description: Adds a new product to the shopping cart
+      description: Adds a new product to the shopping cart or increments quantity if it already exists
       requestBody:
         required: true
         content:
@@ -37,6 +37,32 @@ paths:
       responses:
         '201':
           description: Item added successfully
+        '400':
+          description: Invalid request body or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Replace entire cart
+      description: Replaces the entire cart with the provided items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CartItem'
+      responses:
+        '200':
+          description: Cart updated successfully
         '400':
           description: Invalid request body or missing required fields
           content:
@@ -76,6 +102,16 @@ components:
           type: number
           format: float
           description: Product price
+        quantity:
+          type: integer
+          description: Quantity of the item in the cart
+          default: 1
+        category:
+          type: string
+          description: Product category
+        description:
+          type: string
+          description: Product description
       required:
         - id
         - name

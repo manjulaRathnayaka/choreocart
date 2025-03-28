@@ -2,7 +2,7 @@ import React from 'react';
 import './Cart.css';
 import { updateCartItemQuantity, clearCart } from '../api';
 
-const Cart = ({ cart, checkout, setCart }) => {
+const Cart = ({ cart, checkout, fetchCart }) => {
   const totalAmount = cart.reduce((sum, item) => {
     const quantity = item.quantity || 1;
     return sum + (item.price * quantity);
@@ -13,11 +13,8 @@ const Cart = ({ cart, checkout, setCart }) => {
 
     try {
       await updateCartItemQuantity(productId, newQuantity);
-      // Update the local cart state
-      const updatedCart = cart.map(item =>
-        item.id === productId ? { ...item, quantity: newQuantity } : item
-      );
-      setCart(updatedCart);
+      // Refresh the cart
+      fetchCart();
     } catch (error) {
       console.error('Failed to update quantity:', error);
     }
@@ -26,7 +23,7 @@ const Cart = ({ cart, checkout, setCart }) => {
   const handleClearCart = async () => {
     try {
       await clearCart();
-      setCart([]);
+      fetchCart();
     } catch (error) {
       console.error('Failed to clear cart:', error);
     }

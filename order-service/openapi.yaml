@@ -45,8 +45,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /order:
     post:
-      summary: Create new order
-      description: Creates a new order from cart items
+      summary: Create new order (alternative endpoint)
+      description: Creates a new order from cart items (alternative endpoint)
       requestBody:
         required: true
         content:
@@ -148,6 +148,16 @@ components:
           type: number
           format: float
           description: Product price
+        quantity:
+          type: integer
+          description: Quantity of the item
+          default: 1
+        category:
+          type: string
+          description: Product category
+        description:
+          type: string
+          description: Product description
       required:
         - id
         - name
