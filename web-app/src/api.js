@@ -1,8 +1,11 @@
-// Get the API base URL from environment variables, defaulting to empty string (relative URL)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+// Get the API base URL from window.configs, falling back to environment variables,
+// then falling back to an empty string (relative URL)
+const API_BASE_URL = (window.configs && window.configs.apiUrl) ||
+                     import.meta.env.VITE_API_BASE_URL ||
+                     '';
 
 export async function getProducts() {
-  const res = await fetch(`${API_BASE_URL}/products`);
+  const res = await fetch(`${API_BASE_URL}/api/products`);
   if (!res.ok) {
     throw new Error('Failed to fetch products');
   }
@@ -10,7 +13,7 @@ export async function getProducts() {
 }
 
 export async function getProduct(id) {
-  const res = await fetch(`${API_BASE_URL}/products/${id}`);
+  const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
   if (!res.ok) {
     throw new Error('Failed to fetch product');
   }
@@ -18,7 +21,7 @@ export async function getProduct(id) {
 }
 
 export async function searchProducts(query, category) {
-  let url = `${API_BASE_URL}/products/search`;
+  let url = `${API_BASE_URL}/api/products/search`;
   const params = [];
   if (query) params.push(`query=${encodeURIComponent(query)}`);
   if (category) params.push(`category=${encodeURIComponent(category)}`);
@@ -32,7 +35,7 @@ export async function searchProducts(query, category) {
 }
 
 export async function getCart() {
-  const res = await fetch(`${API_BASE_URL}/cart`);
+  const res = await fetch(`${API_BASE_URL}/api/cart`);
   if (!res.ok) {
     throw new Error('Failed to fetch cart');
   }
@@ -40,7 +43,6 @@ export async function getCart() {
 }
 
 export async function addToCart(product) {
-  // Get the current cart to check if the item already exists
   try {
     const res = await fetch(`${API_BASE_URL}/api/cart`, {
       method: 'POST',
@@ -58,7 +60,6 @@ export async function addToCart(product) {
   }
 }
 
-// Add a new function to update item quantity
 export async function updateCartItemQuantity(productId, quantity) {
   try {
     // Get current cart
@@ -87,7 +88,7 @@ export async function updateCartItemQuantity(productId, quantity) {
 }
 
 export async function clearCart() {
-  const res = await fetch(`${API_BASE_URL}/cart`, {
+  const res = await fetch(`${API_BASE_URL}/api/cart`, {
     method: 'DELETE',
   });
 
@@ -98,7 +99,7 @@ export async function clearCart() {
 }
 
 export async function checkout() {
-  const res = await fetch(`${API_BASE_URL}/checkout`, { method: 'POST' });
+  const res = await fetch(`${API_BASE_URL}/api/checkout`, { method: 'POST' });
   if (!res.ok) {
     const errorData = await res.json();
     throw new Error(errorData.error || 'Checkout failed');
@@ -107,7 +108,7 @@ export async function checkout() {
 }
 
 export async function getOrders() {
-  const res = await fetch(`${API_BASE_URL}/orders`);
+  const res = await fetch(`${API_BASE_URL}/api/orders`);
   if (!res.ok) {
     throw new Error('Failed to fetch orders');
   }
@@ -115,7 +116,7 @@ export async function getOrders() {
 }
 
 export async function getOrder(orderId) {
-  const res = await fetch(`${API_BASE_URL}/orders/${orderId}`);
+  const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`);
   if (!res.ok) {
     throw new Error('Failed to fetch order');
   }
@@ -123,7 +124,7 @@ export async function getOrder(orderId) {
 }
 
 export async function updateOrderStatus(orderId, status) {
-  const res = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+  const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status }),
