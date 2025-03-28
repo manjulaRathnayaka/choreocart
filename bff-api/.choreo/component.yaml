@@ -28,7 +28,7 @@ dependencies:
     - name: order
       resourceRef: service:/cart-app-on-vultr-cloud/order-service/v1/1911a/PROJECT
     - name: cart
-      resourceRef: service:/cart-app-on-vultr-cloud/cart-service/v1/fb1df/PUBLIC
+      resourceRef: service:/cart-app-on-vultr-cloud/cart-service/v1/fb1df/PROJECT
 # Runtime configurations can be added as needed
 configurations:
   # Environment variables if needed
