@@ -1,10 +1,14 @@
 .cart {
-  width: 100%;
+  flex: 1;  /* Change from width: 100% to flex: 1 */
+  max-width: 350px;  /* Add a max-width */
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   background-color: white;
+  align-self: flex-start; /* Keep the cart at the top when scrolling */
+  position: sticky;  /* Make the cart sticky */
+  top: 20px;  /* Space from top when sticky */
 }
 
 .cart h2 {

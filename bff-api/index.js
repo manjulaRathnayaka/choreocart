@@ -123,26 +123,74 @@ app.post('/cart', asyncHandler(async (req, res) => {
   res.status(201).end();
 }));
 
-// Add a PUT /cart endpoint if it doesn't exist
+// Make sure the PUT /cart endpoint is properly handling the request
+app.put('/api/cart', asyncHandler(async (req, res) => {
+  if (!Array.isArray(req.body)) {
+    return res.status(400).json({ error: 'Invalid cart data format' });
+  }
+
+  try {
+    const response = await fetch(`${CART_SERVICE}/cart`, {
+      method: 'PUT',
+      headers: createHeaders('cart', { 'Content-Type': 'application/json' }),
+      body: JSON.stringify(req.body),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      return res.status(response.status).json({ error: error || 'Failed to update cart' });
+    }
+
+    // Get the updated cart to return
+    const updatedCartResponse = await fetch(`${CART_SERVICE}/cart`, {
+      headers: createHeaders('cart')
+    });
+
+    if (!updatedCartResponse.ok) {
+      return res.status(200).json({ message: 'Cart updated successfully' });
+    }
+
+    const updatedCart = await updatedCartResponse.json();
+    res.status(200).json(updatedCart);
+  } catch (error) {
+    console.error('Error updating cart:', error);
+    res.status(500).json({ error: 'Failed to update cart' });
+  }
+}));
+
+// Add this route too, without the /api prefix for compatibility
 app.put('/cart', asyncHandler(async (req, res) => {
-  const updatedCart = req.body;
-
-  if (!Array.isArray(updatedCart)) {
-    return res.status(400).json({ error: 'Cart must be an array' });
+  if (!Array.isArray(req.body)) {
+    return res.status(400).json({ error: 'Invalid cart data format' });
   }
 
-  const response = await fetch(`${CART_SERVICE}/cart`, {
-    method: 'PUT',
-    headers: createHeaders('cart', { 'Content-Type': 'application/json' }),
-    body: JSON.stringify(updatedCart),
-  });
+  try {
+    const response = await fetch(`${CART_SERVICE}/cart`, {
+      method: 'PUT',
+      headers: createHeaders('cart', { 'Content-Type': 'application/json' }),
+      body: JSON.stringify(req.body),
+    });
 
-  if (!response.ok) {
-    const error = await response.text();
-    return res.status(response.status).json({ error: error || 'Failed to update cart' });
+    if (!response.ok) {
+      const error = await response.text();
+      return res.status(response.status).json({ error: error || 'Failed to update cart' });
+    }
+
+    // Get the updated cart to return
+    const updatedCartResponse = await fetch(`${CART_SERVICE}/cart`, {
+      headers: createHeaders('cart')
+    });
+
+    if (!updatedCartResponse.ok) {
+      return res.status(200).json({ message: 'Cart updated successfully' });
+    }
+
+    const updatedCart = await updatedCartResponse.json();
+    res.status(200).json(updatedCart);
+  } catch (error) {
+    console.error('Error updating cart:', error);
+    res.status(500).json({ error: 'Failed to update cart' });
   }
-
-  res.status(200).end();
 }));
 
 app.delete('/cart', asyncHandler(async (req, res) => {
@@ -210,16 +258,26 @@ app.get('/orders', asyncHandler(async (req, res) => {
 
 app.get('/orders/:orderId', asyncHandler(async (req, res) => {
   const { orderId } = req.params;
-  const response = await fetch(`${ORDER_SERVICE}/orders/${orderId}`, {
-    headers: createHeaders('order')
-  });
 
-  if (!response.ok) {
-    return res.status(response.status).json({ error: 'Order not found' });
+  try {
+    console.log(`Fetching order ${orderId} from ${ORDER_SERVICE}/orders/${orderId}`);
+    const response = await fetch(`${ORDER_SERVICE}/orders/${orderId}`, {
+      headers: createHeaders('order')
+    });
+
+    console.log("Order service response status:", response.status);
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Order not found' });
+    }
+
+    const order = await response.json();
+    console.log("Order data:", order);
+    res.json(order);
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    res.status(500).json({ error: 'Failed to fetch order' });
   }
-
-  const order = await response.json();
-  res.json(order);
 }));
 
 // Update order status
@@ -231,18 +289,27 @@ app.patch('/orders/:orderId', asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Status is required' });
   }
 
-  const response = await fetch(`${ORDER_SERVICE}/orders/${orderId}`, {
-    method: 'PATCH',
-    headers: createHeaders('order', { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ status }),
-  });
+  try {
+    console.log(`Updating order ${orderId} status to ${status}`);
+    const response = await fetch(`${ORDER_SERVICE}/orders/${orderId}`, {
+      method: 'PATCH',
+      headers: createHeaders('order', { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ status }),
+    });
 
-  if (!response.ok) {
-    return res.status(response.status).json({ error: 'Failed to update order status' });
+    console.log("Update order status response:", response.status);
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to update order status' });
+    }
+
+    const order = await response.json();
+    console.log("Updated order:", order);
+    res.json(order);
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({ error: 'Failed to update order status' });
   }
-
-  const order = await response.json();
-  res.json(order);
 }));
 
 // Error handling middleware

@@ -1,25 +1,32 @@
 .order-history {
-  max-width: 800px;
-  margin: 0 auto;
+  width: 100%;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .order-history h2 {
   text-align: center;
   margin-bottom: 20px;
+  color: #333;
 }
 
 .orders-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
 }
 
 .order-card {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .order-header {
@@ -27,54 +34,66 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
 }
 
 .order-header h3 {
   margin: 0;
+  color: #333;
 }
 
 .order-status {
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 5px 10px;
+  border-radius: 15px;
   font-size: 0.8em;
-  font-weight: bold;
+  font-weight: 500;
 }
 
 .status-pending {
-  background-color: #ffecb3;
-  color: #ff8f00;
+  background-color: #fff8e1;
+  color: #f57f17;
 }
 
 .status-completed {
-  background-color: #c8e6c9;
+  background-color: #e8f5e9;
   color: #2e7d32;
 }
 
 .status-cancelled {
-  background-color: #ffcdd2;
+  background-color: #ffebee;
   color: #c62828;
 }
 
 .order-date {
-  color: #757575;
+  color: #666;
   font-size: 0.9em;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .order-items {
-  margin: 15px 0;
-  border-top: 1px solid #eaeaea;
-  border-bottom: 1px solid #eaeaea;
-  padding: 10px 0;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 
 .order-item {
   display: flex;
   justify-content: space-between;
-  padding: 5px 0;
+  margin-bottom: 5px;
+}
+
+.item-name {
+  color: #333;
+}
+
+.item-price {
+  color: #666;
 }
 
 .order-total {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
   text-align: right;
   font-size: 1.1em;
 }
@@ -89,4 +108,80 @@
 
 .error-state h2 {
   margin-bottom: 30px;
+}
+
+.loading {
+  text-align: center;
+  margin: 30px 0;
+  color: #666;
+}
+
+.error-message {
+  background-color: #fff5f5;
+  border: 1px solid #ff8a8a;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 20px 0;
+}
+
+.error-details {
+  color: #d32f2f;
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
+.retry-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.retry-button:hover {
+  background-color: #d32f2f;
+}
+
+.no-orders {
+  text-align: center;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.start-shopping-btn {
+  display: inline-block;
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  margin-top: 10px;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.start-shopping-btn:hover {
+  background-color: #43a047;
+}
+
+.view-order-btn {
+  display: block;
+  text-align: center;
+  background-color: #2196f3;
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 15px;
+  text-decoration: none;
+}
+
+.view-order-btn:hover {
+  background-color: #1976d2;
+}
+
+@media (max-width: 768px) {
+  .orders-list {
+    grid-template-columns: 1fr;
+  }
 }

@@ -45,16 +45,25 @@ export async function getCart() {
 // Find and update the addToCart function
 export async function addToCart(product) {
   try {
+    // Add a quantity property if it doesn't exist
+    const productToAdd = {
+      ...product,
+      quantity: product.quantity || 1
+    };
+
     const res = await fetch(`${API_BASE_URL}/cart`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(product),
+      body: JSON.stringify(productToAdd),
     });
 
     if (!res.ok) {
       throw new Error('Failed to add item to cart');
     }
-    return res;
+
+    // Return the updated cart (this is important)
+    const updatedCart = await getCart();
+    return updatedCart;
   } catch (error) {
     console.error('Error adding to cart:', error);
     throw error;
@@ -68,6 +77,8 @@ export async function updateCartItemQuantity(productId, quantity) {
   }
 
   try {
+    console.log(`Updating quantity for product ${productId} to ${quantity}`);
+
     // First get the current cart
     const currentCart = await getCart();
 
@@ -79,6 +90,8 @@ export async function updateCartItemQuantity(productId, quantity) {
       return item;
     });
 
+    console.log("Sending updated cart:", updatedCart);
+
     // Send the updated cart to the server
     const res = await fetch(`${API_BASE_URL}/cart`, {
       method: 'PUT',
@@ -86,10 +99,14 @@ export async function updateCartItemQuantity(productId, quantity) {
       body: JSON.stringify(updatedCart),
     });
 
+    console.log("Update cart response status:", res.status);
+
     if (!res.ok) {
-      throw new Error('Failed to update cart');
+      throw new Error(`Failed to update cart: ${res.status}`);
     }
-    return res;
+
+    // Return the result of getCart() to ensure we have the latest state
+    return await getCart();
   } catch (error) {
     console.error('Error updating cart:', error);
     throw error;
@@ -97,14 +114,24 @@ export async function updateCartItemQuantity(productId, quantity) {
 }
 
 export async function clearCart() {
-  const res = await fetch(`${API_BASE_URL}/cart`, {
-    method: 'DELETE',
-  });
+  try {
+    console.log("Clearing cart at:", `${API_BASE_URL}/cart`);
+    const res = await fetch(`${API_BASE_URL}/cart`, {
+      method: 'DELETE',
+    });
 
-  if (!res.ok) {
-    throw new Error('Failed to clear cart');
+    console.log("Clear cart response status:", res.status);
+
+    if (!res.ok) {
+      throw new Error(`Failed to clear cart: ${res.status}`);
+    }
+
+    console.log("Cart cleared successfully");
+    return [];
+  } catch (error) {
+    console.error("Clear cart error:", error);
+    throw error;
   }
-  return res;
 }
 
 export async function checkout() {
@@ -117,30 +144,66 @@ export async function checkout() {
 }
 
 export async function getOrders() {
-  const res = await fetch(`${API_BASE_URL}/orders`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch orders');
+  try {
+    console.log("Fetching orders from:", `${API_BASE_URL}/orders`);
+    const res = await fetch(`${API_BASE_URL}/orders`);
+
+    console.log("Orders API response status:", res.status);
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch orders: ${res.status}`);
+    }
+
+    const data = await res.json();
+    console.log("Orders API response data:", data);
+    return data;
+  } catch (error) {
+    console.error("Orders API fetch error:", error);
+    throw error;
   }
-  return res.json();
 }
 
 export async function getOrder(orderId) {
-  const res = await fetch(`${API_BASE_URL}/orders/${orderId}`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch order');
+  try {
+    console.log(`Fetching order details for ${orderId}`);
+    const res = await fetch(`${API_BASE_URL}/orders/${orderId}`);
+
+    console.log("Get order response status:", res.status);
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch order: ${res.status}`);
+    }
+
+    const order = await res.json();
+    console.log("Order details:", order);
+    return order;
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    throw error;
   }
-  return res.json();
 }
 
 export async function updateOrderStatus(orderId, status) {
-  const res = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status }),
-  });
+  try {
+    console.log(`Updating order ${orderId} status to ${status}`);
 
-  if (!res.ok) {
-    throw new Error('Failed to update order status');
+    const res = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+
+    console.log("Update order status response:", res.status);
+
+    if (!res.ok) {
+      throw new Error(`Failed to update order status: ${res.status}`);
+    }
+
+    const updatedOrder = await res.json();
+    console.log("Updated order:", updatedOrder);
+    return updatedOrder;
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    throw error;
   }
-  return res.json();
 }

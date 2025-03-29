@@ -16,11 +16,21 @@
 .app-main {
   display: flex;
   gap: 30px;
+  justify-content: space-between;
+}
+
+.product-list {
+  flex: 3; /* Give product list more space compared to cart */
 }
 
 @media (max-width: 768px) {
   .app-main {
     flex-direction: column;
+  }
+
+  .cart {
+    max-width: 100%; /* Full width on mobile */
+    position: static; /* No sticky positioning on mobile */
   }
 }
 

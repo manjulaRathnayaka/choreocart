@@ -4,6 +4,7 @@ import './App.css';
 import ProductList from './components/ProductList';
 import Cart from './components/Cart';
 import OrderHistory from './components/OrderHistory';
+import OrderDetail from './components/OrderDetail';
 import { getProducts, getCart, addToCart as apiAddToCart, checkout as apiCheckout } from './api';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,6 +14,7 @@ function App() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [cartLoading, setCartLoading] = useState(false);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -31,14 +33,21 @@ function App() {
 
   const fetchCart = async () => {
     try {
-      const data = await getCart();
-      setCart(data);
-    } catch (err) {
-      console.error('Error fetching cart:', err);
-      toast.error(`Failed to load cart: ${err.message || 'Unknown error'}`);
-      // Continue to show empty cart if API fails
-      setCart([]);
+      console.log("Fetching cart...");
+      setCartLoading(true);
+      const cartData = await getCart();
+      console.log("Cart data received:", cartData);
+      setCart(cartData);
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      toast.error('Failed to load cart');
+    } finally {
+      setCartLoading(false);
     }
+  };
+
+  const refreshCart = () => {
+    fetchCart();
   };
 
   useEffect(() => {
@@ -48,9 +57,9 @@ function App() {
 
   const handleAddToCart = async (product) => {
     try {
-      await apiAddToCart(product);
+      const updatedCart = await apiAddToCart(product);
+      setCart(updatedCart); // Update the cart with the returned data
       toast.success(`${product.name} added to cart!`);
-      fetchCart(); // Refresh cart
     } catch (err) {
       console.error('Error adding to cart:', err);
       toast.error(`Failed to add item: ${err.message || 'Unknown error'}`);
@@ -61,7 +70,7 @@ function App() {
     try {
       await apiCheckout();
       toast.success('Order placed successfully!');
-      fetchCart(); // Refresh cart after checkout
+      refreshCart(); // Use the dedicated refresh function
     } catch (err) {
       console.error('Error during checkout:', err);
       toast.error(`Checkout failed: ${err.message || 'Unknown error'}`);
@@ -72,7 +81,7 @@ function App() {
     <div className="app loading-container">
       <div className="loading">
         <div className="loading-spinner"></div>
-        <p>Loading ChoreoCart...</p>
+        <p>Loading CloudMart...</p>
       </div>
     </div>
   );
@@ -94,7 +103,7 @@ function App() {
     <Router>
       <div className="app">
         <header className="app-header">
-          <h1>ChoreoCart</h1>
+          <h1>CloudMart</h1>
           <nav className="app-nav">
             <Link to="/">Shop</Link>
             <Link to="/orders">Orders</Link>
@@ -105,10 +114,11 @@ function App() {
           <Route path="/" element={
             <main className="app-main">
               <ProductList products={products} addToCart={handleAddToCart} />
-              <Cart cart={cart} checkout={handleCheckout} fetchCart={fetchCart} />
+              <Cart cart={cart} checkout={handleCheckout} fetchCart={refreshCart} />
             </main>
           } />
           <Route path="/orders" element={<OrderHistory />} />
+          <Route path="/orders/:id" element={<OrderDetail />} />
         </Routes>
       </div>
       <ToastContainer
