@@ -10,7 +10,7 @@ endpoints:
     # Service section has the user service endpoint details
     service:
       # Context (base path) of the API that gets exposed via the endpoint
-      basePath: /api
+      basePath: /
       # Numeric port value that gets exposed via the endpoint
       port: 8080
     # Type of traffic that the endpoint is accepting
