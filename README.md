@@ -2,7 +2,7 @@
 
 CloudMart is a sample e-commerce application built using a microservices architecture, designed to demonstrate how multiple services can work together to create a complete shopping experience. The application allows users to browse products, add items to a cart, place orders, and view order history.
 
-![CloudMart Architecture](./cloudmart-architecture.png)
+![Application Architecture](./docs/images/architecture.png)
 
 ## System Architecture
 
